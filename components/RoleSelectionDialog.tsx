@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +18,19 @@ import { useState } from "react";
 interface RoleSelectionDialogProps {
   children: React.ReactNode;
 }
+
+type SignInData = {
+  role: string;
+  email: string;
+  password: string;
+};
+
+type SignUpData = {
+  role: string;
+  name: string;
+  email: string;
+  password: string;
+};
 
 export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
   // State for Company
@@ -40,11 +54,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
   const [universitySignUpEmail, setUniversitySignUpEmail] = useState("");
   const [universitySignUpPassword, setUniversitySignUpPassword] = useState("");
 
-  const handleSignIn = async (role: string, data: any) => {
+
+
+  const handleSignIn = async (data: SignInData) => {
     try {
-      const payload = { role, ...data };
-      localStorage.setItem("currentUser", JSON.stringify(payload));
-      
+      const payload = { ...data };
+
       const response = await fetch("/api/signin", {
         method: "POST",
         headers: {
@@ -53,16 +68,22 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
         body: JSON.stringify(payload),
       });
       const result = await response.json();
-      console.log("Client SignIn Success:", result);
+
+      if (!response.ok) {
+        toast.error(result.error || "Sign In failed");
+      } else {
+        toast.success(result.message || "Sign In successful");
+        console.log("Client SignIn Success:", result);
+      }
     } catch (error) {
       console.error("Client SignIn Error:", error);
+      toast.error("An unexpected error occurred.");
     }
   };
 
   const handleSignUp = async (role: string, data: any) => {
     try {
       const payload = { role, ...data };
-      localStorage.setItem("currentUser", JSON.stringify(payload));
 
       const response = await fetch("/api/signup", {
         method: "POST",
@@ -72,9 +93,16 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
         body: JSON.stringify(payload),
       });
       const result = await response.json();
-      console.log("Client SignUp Success:", result);
+
+      if (!response.ok) {
+        toast.error(result.error || "Sign Up failed");
+      } else {
+        toast.success(result.message || "Sign Up successful");
+        console.log("Client SignUp Success:", result);
+      }
     } catch (error) {
       console.error("Client SignUp Error:", error);
+      toast.error("An unexpected error occurred.");
     }
   };
 
@@ -132,10 +160,11 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       onChange={(e) => setCompanySignInPassword(e.target.value)}
                     />
                   </div>
+
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignIn("company", {
+                      handleSignIn({role : "company",
                         email: companySignInEmail,
                         password: companySignInPassword,
                       })
@@ -222,7 +251,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignIn("student", {
+                      handleSignIn({role : "student",
                         email: studentSignInEmail,
                         password: studentSignInPassword,
                       })
@@ -309,7 +338,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignIn("university", {
+                      handleSignIn({role : "university", 
                         email: universitySignInEmail,
                         password: universitySignInPassword,
                       })
