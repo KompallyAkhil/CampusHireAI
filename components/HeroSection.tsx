@@ -1,11 +1,72 @@
 'use client'
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {  CheckCircle2 , User} from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { RoleSelectionDialog } from "./RoleSelectionDialog";
+
 const HeroSection = () => {
+    const router = useRouter();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const checkAuth = () => {
+            const token = localStorage.getItem('token');
+            const expiresAt = localStorage.getItem('session_expires_at');
+            if (token && expiresAt) {
+                const now = Date.now();
+                if (parseInt(expiresAt) > now) {
+                    setIsLoggedIn(true);
+                } else {
+                    setIsLoggedIn(false);
+                }
+            } else {
+                setIsLoggedIn(false);
+            }
+        };
+        
+        checkAuth();
+        window.addEventListener('storage', checkAuth);
+        return () => window.removeEventListener('storage', checkAuth);
+    }, []);
+
+    const handleGetStarted = () => {
+        router.push('/dashboard');
+    };
+
     const x = useMotionValue(0);
     const y = useMotionValue(0);
+
+// ... (rest of code)
+
+// Inside the JSX:
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                        className="flex flex-wrap gap-4"
+                    >
+                        {isLoggedIn ? (
+                            <Button 
+                                onClick={handleGetStarted}
+                                size="lg" 
+                                className="h-14 px-8 cursor-pointer rounded-2xl bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 text-lg transition-all hover:scale-105"
+                            >
+                                Get Started
+                            </Button>
+                        ) : (
+                            <RoleSelectionDialog>
+                                <Button size="lg" className="h-14 px-8 cursor-pointer rounded-2xl bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 text-lg transition-all hover:scale-105">
+                                    Get Started
+                                </Button>
+                            </RoleSelectionDialog>
+                        )}
+                        {/* <Button size="lg" variant="ghost" className="h-14 px-8 rounded-2xl text-slate-600 hover:bg-slate-100 text-lg">
+                            View Success Stories
+                        </Button> */}
+                    </motion.div>
 
     const mouseXSpring = useSpring(x);
     const mouseYSpring = useSpring(y);
@@ -82,9 +143,21 @@ const HeroSection = () => {
                         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                         className="flex flex-wrap gap-4"
                     >
-                        <Button asChild size="lg" className="h-14 px-8 cursor-pointer rounded-2xl bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 text-lg transition-all hover:scale-105">
-                            <Link href="/dashboard">Get Started</Link>
-                        </Button>
+                        {isLoggedIn ? (
+                            <Button 
+                                onClick={handleGetStarted}
+                                size="lg" 
+                                className="h-14 px-8 cursor-pointer rounded-2xl bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 text-lg transition-all hover:scale-105"
+                            >
+                                Get Started
+                            </Button>
+                        ) : (
+                            <RoleSelectionDialog>
+                                <Button size="lg" className="h-14 px-8 cursor-pointer rounded-2xl bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 text-lg transition-all hover:scale-105">
+                                    Get Started
+                                </Button>
+                            </RoleSelectionDialog>
+                        )}
                         {/* <Button size="lg" variant="ghost" className="h-14 px-8 rounded-2xl text-slate-600 hover:bg-slate-100 text-lg">
                             View Success Stories
                         </Button> */}

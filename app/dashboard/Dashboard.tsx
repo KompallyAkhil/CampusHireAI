@@ -1,7 +1,9 @@
 'use client'
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 interface User {
     userId : number;
     id : number;
@@ -17,7 +19,44 @@ const UserSchema = z.object({
 });
 
 const Dashboard =  () => {
+    const router = useRouter();
     const [data, setData] = useState<User | null>(null);
+
+    useEffect(() => {
+        const checkSession = () => {
+            const token = localStorage.getItem('token');
+            const expiresAt = localStorage.getItem('session_expires_at');
+            
+            if (!token || !expiresAt) {
+                 router.push('/');
+                 return;
+            }
+
+            if (expiresAt) {
+                const now = Date.now();
+                const timeout = parseInt(expiresAt) - now;
+                
+                if (timeout <= 0) {
+                    toast.error("Session expired. Please log in again.");
+                    localStorage.removeItem('session_expires_at');
+                    localStorage.removeItem('token');
+                    router.push('/');
+                } else {
+                    // Set a timer for the remaining time
+                    const timer = setTimeout(() => {
+                        toast.error("Session expired. Please log in again.");
+                        localStorage.removeItem('session_expires_at');
+                        localStorage.removeItem('token');
+                        router.push('/');
+                    }, timeout);
+                    return () => clearTimeout(timer);
+                }
+            }
+        };
+
+        checkSession();
+    }, [router]);
+
     const getDataFromUser = async () => {
         const response = await fetch('/api/users');
         const res = await response.json();

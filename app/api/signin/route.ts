@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabase';
+import bcrypt from 'bcrypt';
+import { SignJWT } from 'jose';
 
 export async function POST(request: Request) {
   try {
@@ -28,7 +30,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    if (user.password !== password) {
+    // Verify Password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }
 
@@ -36,7 +41,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Access denied: Incorrect role' }, { status: 403 });
     }
 
-    return NextResponse.json({ message: 'SignIn successful', data: user });
+    // Generate JWT
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'default_secret');
+    const token = await new SignJWT({ 
+        userId: user.id, 
+        email: user.email, 
+        role: user.role, 
+        name: user.name 
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('1d')
+      .sign(secret);
+
+    return NextResponse.json({ 
+      message: 'SignIn successful', 
+      data: { 
+        ...user, 
+        token,
+        expiresAt: Date.now() + 30 * 1000 // 30 seconds from now
+      } 
+    });
   } catch (error) {
     console.error('Error processing SignIn request:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });

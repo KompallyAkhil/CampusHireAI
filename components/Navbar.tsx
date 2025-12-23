@@ -29,6 +29,52 @@ const Navbar = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    const checkAuth = () => {
+        const token = localStorage.getItem('token');
+        const expiresAt = localStorage.getItem('session_expires_at');
+        
+        if (token && expiresAt) {
+            const now = Date.now();
+            if (parseInt(expiresAt) > now) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+                localStorage.removeItem('session_expires_at');
+                localStorage.removeItem('token');
+            }
+        } else {
+            setIsLoggedIn(false);
+        }
+    };
+
+    useEffect(() => {
+        checkAuth();
+        // Check auth status periodically or on focus
+        window.addEventListener('storage', checkAuth);
+        return () => window.removeEventListener('storage', checkAuth);
+    }, []);
+
+    // Also check on mount and interval
+    useEffect(() => {
+        const interval = setInterval(checkAuth, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleLogout = async () => {
+        try {
+            // Remove local storage items
+            localStorage.removeItem('session_expires_at');
+            localStorage.removeItem('token');
+            
+            // Force update
+            window.dispatchEvent(new Event("storage"));
+            setIsLoggedIn(false);
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
     const getNavbarWidth = () => {
         if (windowWidth < 768) return "95%";
         if (windowWidth < 1024) return scrolled ? "85%" : "90%";
@@ -92,11 +138,20 @@ const Navbar = () => {
                             {/* Right Side */}
                             <div className="flex items-center gap-4">
                                 <div className="hidden md:flex">
-                                    <RoleSelectionDialog>
-                                        <Button className="bg-primary cursor-pointer hover:bg-primary/80 shadow-lg shadow-indigo-500/20 border-0">
-                                            Login
+                                    {isLoggedIn ? (
+                                        <Button 
+                                            onClick={handleLogout}
+                                            className="bg-primary cursor-pointer hover:bg-primary/80 shadow-lg border-0"
+                                        >
+                                            Logout
                                         </Button>
-                                    </RoleSelectionDialog>
+                                    ) : (
+                                        <RoleSelectionDialog>
+                                            <Button className="bg-primary cursor-pointer hover:bg-primary/80 shadow-lg shadow-indigo-500/20 border-0">
+                                                Login
+                                            </Button>
+                                        </RoleSelectionDialog>
+                                    )}
                                 </div>
 
                                 {/* Mobile Menu Toggle */}
@@ -134,11 +189,20 @@ const Navbar = () => {
                                         </a>
                                     ))}
                                     <div className="pt-2 mt-2 border-t border-border/50">
-                                        <RoleSelectionDialog>
-                                            <Button className="w-full rounded-xl bg-primary border-0">
-                                                Login
+                                        {isLoggedIn ? (
+                                            <Button 
+                                                onClick={handleLogout}
+                                                className="w-full rounded-xl bg-destructive border-0"
+                                            >
+                                                Logout
                                             </Button>
-                                        </RoleSelectionDialog>
+                                        ) : (
+                                            <RoleSelectionDialog>
+                                                <Button className="w-full rounded-xl bg-primary border-0">
+                                                    Login
+                                                </Button>
+                                            </RoleSelectionDialog>
+                                        )}
                                     </div>
                                 </div>
                             </motion.div>

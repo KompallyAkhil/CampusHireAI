@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface RoleSelectionDialogProps {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ type SignUpData = {
 };
 
 export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
+  const router = useRouter();
   // State for Company
   const [companySignInEmail, setCompanySignInEmail] = useState("");
   const [companySignInPassword, setCompanySignInPassword] = useState("");
@@ -74,6 +76,22 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
       } else {
         toast.success(result.message || "Sign In successful");
         console.log("Client SignIn Success:", result);
+        
+        // Store session expiration
+        if (result.data?.expiresAt) {
+          localStorage.setItem('session_expires_at', result.data.expiresAt.toString());
+        }
+        
+        // Store token
+        if (result.data?.token) {
+            localStorage.setItem('token', result.data.token);
+        }
+
+        // Force a storage event for the current window to update Navbar
+        window.dispatchEvent(new Event("storage"));
+
+        // Redirect to dashboard
+        router.push('/dashboard');
       }
     } catch (error) {
       console.error("Client SignIn Error:", error);
@@ -81,9 +99,9 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
     }
   };
 
-  const handleSignUp = async (role: string, data: any) => {
+  const handleSignUp = async  (data:SignUpData) => {
     try {
-      const payload = { role, ...data };
+      const payload = { ...data };
 
       const response = await fetch("/api/signup", {
         method: "POST",
@@ -140,7 +158,18 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <div className="grid gap-4 py-4">
+                <div 
+                  className="grid gap-4 py-4"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSignIn({
+                        role: "company",
+                        email: companySignInEmail,
+                        password: companySignInPassword,
+                      });
+                    }
+                  }}
+                >
                   <div className="grid gap-2">
                     <Label htmlFor="company-email">Email</Label>
                     <Input
@@ -175,7 +204,19 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <div className="grid gap-4 py-4">
+                <div 
+                  className="grid gap-4 py-4"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSignUp({
+                        role: "company",
+                        name: companyName,
+                        email: companySignUpEmail,
+                        password: companySignUpPassword,
+                      });
+                    }
+                  }}
+                >
                   <div className="grid gap-2">
                     <Label htmlFor="company-name">Company Name</Label>
                     <Input
@@ -207,7 +248,8 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignUp("company", {
+                      handleSignUp({
+                        role : "company",
                         name: companyName,
                         email: companySignUpEmail,
                         password: companySignUpPassword,
@@ -228,7 +270,18 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <div className="grid gap-4 py-4">
+                <div 
+                  className="grid gap-4 py-4"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSignIn({
+                        role: "student",
+                        email: studentSignInEmail,
+                        password: studentSignInPassword,
+                      });
+                    }
+                  }}
+                >
                   <div className="grid gap-2">
                     <Label htmlFor="student-email">Email</Label>
                     <Input
@@ -262,7 +315,19 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <div className="grid gap-4 py-4">
+                <div 
+                  className="grid gap-4 py-4"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSignUp({
+                        role: "student",
+                        name: studentName,
+                        email: studentSignUpEmail,
+                        password: studentSignUpPassword,
+                      });
+                    }
+                  }}
+                >
                   <div className="grid gap-2">
                     <Label htmlFor="student-name">Full Name</Label>
                     <Input
@@ -294,7 +359,8 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignUp("student", {
+                      handleSignUp({
+                        role : "student",
                         name: studentName,
                         email: studentSignUpEmail,
                         password: studentSignUpPassword,
@@ -315,7 +381,18 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <div className="grid gap-4 py-4">
+                <div 
+                  className="grid gap-4 py-4"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSignIn({
+                        role: "university",
+                        email: universitySignInEmail,
+                        password: universitySignInPassword,
+                      });
+                    }
+                  }}
+                >
                   <div className="grid gap-2">
                     <Label htmlFor="university-email">Email</Label>
                     <Input
@@ -349,7 +426,19 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <div className="grid gap-4 py-4">
+                <div 
+                  className="grid gap-4 py-4"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSignUp({
+                        role: "university",
+                        name: universityName,
+                        email: universitySignUpEmail,
+                        password: universitySignUpPassword,
+                      });
+                    }
+                  }}
+                >
                   <div className="grid gap-2">
                     <Label htmlFor="university-name">University Name</Label>
                     <Input
@@ -381,7 +470,8 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignUp("university", {
+                      handleSignUp({
+                        role : "university",
                         name: universityName,
                         email: universitySignUpEmail,
                         password: universitySignUpPassword,
