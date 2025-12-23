@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { connectMongoDb } from '@/lib/connectMongoDb';
-import User from '@/app/models/User';
+import { supabase } from '@/utils/supabase';
 
 export async function POST(request: Request) {
   try {
-    await connectMongoDb();
     const body = await request.json();
     console.log('SignIn Request Body:', body);
     const { email, password, role } = body;
@@ -13,7 +11,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const user = await User.findOne({ email });
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .limit(1);
+
+    if (error) {
+      console.error('Supabase SignIn Error:', error);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    const user = users && users.length > 0 ? users[0] : null;
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

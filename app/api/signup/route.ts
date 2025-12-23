@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { connectMongoDb } from '@/lib/connectMongoDb';
-import User from '@/app/models/User';
+import { supabase } from '@/utils/supabase';
 
 export async function POST(request: Request) {
   try {
-    await connectMongoDb();
     const body = await request.json();
     console.log('SignUp Request Body:', body);
     const { role, name, email, password } = body;
@@ -13,18 +11,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if user exists
+    const { data: existingUsers, error: findError } = await supabase
+      .from('users')
+      .select('email')
+      .eq('email', email);
+
+    if (existingUsers && existingUsers.length > 0) {
       return NextResponse.json({ error: 'User already exists' }, { status: 409 });
     }
 
-    const user = new User({ role, name, email, password });
-    await user.save();
+    // Insert new user
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ role, name, email, password }])
+      .select();
 
-    console.log('SignUp Success:', body);
+    if (error) {
+        console.error('Supabase Insert Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    console.log('SignUp Success:', data);
     return NextResponse.json({ message: 'SignUp successful' });
   } catch (error) {
     console.error('Error processing SignUp request:', error);
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
+

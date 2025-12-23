@@ -105,7 +105,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
       toast.error("An unexpected error occurred.");
     }
   };
-
+ 
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
