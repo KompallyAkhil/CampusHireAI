@@ -6,7 +6,6 @@ import { SignJWT } from 'jose';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    console.log('SignIn Request Body:', body);
     const { email, password, role } = body;
 
     if (!email || !password || !role) {

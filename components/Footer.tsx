@@ -24,7 +24,7 @@ const Footer = () => {
                     <div className="lg:col-span-2">
                         <a href="#home" className="flex items-center gap-2 mb-6 group w-fit">
                             <div className="relative size-8 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
-                                <Image src="/images/gpt1.png" width={100} height={100} className="h-full w-full object-cover" alt="Logo" />
+                                <Image src="/images/campushire.png" width={100} height={100} className="h-full w-full object-cover" alt="Logo" />
                             </div>
                             <span className="text-xl font-bold text-slate-900">
                                 CampusHire AI
