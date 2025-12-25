@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store/useAuthStore";
 interface User {
     userId : number;
     id : number;
@@ -22,40 +23,16 @@ const Dashboard =  () => {
     const router = useRouter();
     const [data, setData] = useState<User | null>(null);
 
+    const checkSession = useAuthStore((state) => state.checkSession);
+    const logout = useAuthStore((state) => state.logout);
+
     useEffect(() => {
-        const checkSession = () => {
-            const token = localStorage.getItem('token');
-            const expiresAt = localStorage.getItem('session_expires_at');
-            
-            if (!token || !expiresAt) {
-                 router.push('/');
-                 return;
-            }
-
-            if (expiresAt) {
-                const now = Date.now();
-                const timeout = parseInt(expiresAt) - now;
-                
-                if (timeout <= 0) {
-                    toast.error("Session expired. Please log in again.");
-                    localStorage.removeItem('session_expires_at');
-                    localStorage.removeItem('token');
-                    router.push('/');
-                } else {
-                    // Set a timer for the remaining time
-                    const timer = setTimeout(() => {
-                        toast.error("Session expired. Please log in again.");
-                        localStorage.removeItem('session_expires_at');
-                        localStorage.removeItem('token');
-                        router.push('/');
-                    }, timeout);
-                    return () => clearTimeout(timer);
-                }
-            }
-        };
-
-        checkSession();
-    }, [router]);
+        const isValid = checkSession();
+        if (!isValid) {
+             toast.error("Session expired or invalid. Please log in again.");
+             router.push('/');
+        }
+    }, [checkSession, router]);
 
     const getDataFromUser = async () => {
         const response = await fetch('/api/users');

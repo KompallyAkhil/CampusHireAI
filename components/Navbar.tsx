@@ -6,9 +6,13 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
+import { useAuthStore } from "@/store/useAuthStore";
+
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const logout = useAuthStore((state) => state.logout);
+    const checkSession = useAuthStore((state) => state.checkSession);
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -29,50 +33,14 @@ const Navbar = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const checkAuth = () => {
-        const token = localStorage.getItem('token');
-        const expiresAt = localStorage.getItem('session_expires_at');
-        
-        if (token && expiresAt) {
-            const now = Date.now();
-            if (parseInt(expiresAt) > now) {
-                setIsLoggedIn(true);
-            } else {
-                setIsLoggedIn(false);
-                localStorage.removeItem('session_expires_at');
-                localStorage.removeItem('token');
-            }
-        } else {
-            setIsLoggedIn(false);
-        }
-    };
-
     useEffect(() => {
-        checkAuth();
-        // Check auth status periodically or on focus
-        window.addEventListener('storage', checkAuth);
-        return () => window.removeEventListener('storage', checkAuth);
-    }, []);
-
-    // Also check on mount and interval
-    useEffect(() => {
-        const interval = setInterval(checkAuth, 1000);
-        return () => clearInterval(interval);
-    }, []);
+        // Initial check
+        checkSession();
+    }, [checkSession]);
 
     const handleLogout = async () => {
-        try {
-            // Remove local storage items
-            localStorage.removeItem('session_expires_at');
-            localStorage.removeItem('token');
-            
-            // Force update
-            window.dispatchEvent(new Event("storage"));
-            setIsLoggedIn(false);
-            window.location.href = '/';
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
+        logout();
+        window.location.href = '/';
     };
 
     const getNavbarWidth = () => {
@@ -138,7 +106,7 @@ const Navbar = () => {
                             {/* Right Side */}
                             <div className="flex items-center gap-4">
                                 <div className="hidden md:flex">
-                                    {isLoggedIn ? (
+                                    {isAuthenticated ? (
                                         <Button 
                                             onClick={handleLogout}
                                             className="bg-primary cursor-pointer hover:bg-primary/80 shadow-lg border-0"
@@ -189,7 +157,7 @@ const Navbar = () => {
                                         </a>
                                     ))}
                                     <div className="pt-2 mt-2 border-t border-border/50">
-                                        {isLoggedIn ? (
+                                        {isAuthenticated ? (
                                             <Button 
                                                 onClick={handleLogout}
                                                 className="w-full rounded-xl bg-destructive border-0"

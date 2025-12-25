@@ -6,31 +6,16 @@ import {  CheckCircle2 , User} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const HeroSection = () => {
     const router = useRouter();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const checkSession = useAuthStore((state) => state.checkSession);
 
     useEffect(() => {
-        const checkAuth = () => {
-            const token = localStorage.getItem('token');
-            const expiresAt = localStorage.getItem('session_expires_at');
-            if (token && expiresAt) {
-                const now = Date.now();
-                if (parseInt(expiresAt) > now) {
-                    setIsLoggedIn(true);
-                } else {
-                    setIsLoggedIn(false);
-                }
-            } else {
-                setIsLoggedIn(false);
-            }
-        };
-        
-        checkAuth();
-        window.addEventListener('storage', checkAuth);
-        return () => window.removeEventListener('storage', checkAuth);
-    }, []);
+        checkSession();
+    }, [checkSession]);
 
     const handleGetStarted = () => {
         router.push('/dashboard');
@@ -48,7 +33,7 @@ const HeroSection = () => {
                         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                         className="flex flex-wrap gap-4"
                     >
-                        {isLoggedIn ? (
+                        {isAuthenticated ? (
                             <Button 
                                 onClick={handleGetStarted}
                                 size="lg" 
@@ -143,7 +128,7 @@ const HeroSection = () => {
                         transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
                         className="flex flex-wrap gap-4"
                     >
-                        {isLoggedIn ? (
+                        {isAuthenticated ? (
                             <Button 
                                 onClick={handleGetStarted}
                                 size="lg" 

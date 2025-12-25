@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface RoleSelectionDialogProps {
   children: React.ReactNode;
@@ -77,18 +78,15 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
         toast.success(result.message || "Sign In successful");
         console.log("Client SignIn Success:", result);
         
-        // Store session expiration
-        if (result.data?.expiresAt) {
-          localStorage.setItem('session_expires_at', result.data.expiresAt.toString());
-        }
-        
-        // Store token
-        if (result.data?.token) {
-            localStorage.setItem('token', result.data.token);
-        }
+        // Use Zustand store for login
+        const login = useAuthStore.getState().login;
+        console.log("Client SignIn Success:", login);
+        login({
+            user: result.data,
+            token: result.data.token,
+            expiresAt: result.data.expiresAt
+        });
 
-        // Force a storage event for the current window to update Navbar
-        window.dispatchEvent(new Event("storage"));
 
         // Redirect to dashboard
         router.push('/dashboard');
