@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       data: { 
         ...user, 
         token,
-        expiresAt: Date.now() + 30 * 1000 // 30 seconds from now
+        expiresAt: Date.now() + 10 * 1000 
       } 
     });
   } catch (error) {

@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, Calendar, CheckCircle, Search, TrendingUp, User, XCircle } from 'lucide-react';
 import { motion } from "framer-motion";
-
 const StudentDashboard = () => {
     // Mock data - replace with actual API calls later
+  
     const stats = {
         applied: 12,
         shortlisted: 4,

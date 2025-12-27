@@ -6,16 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Building, Users, PieChart, ArrowUpRight, Calendar } from 'lucide-react';
 import { motion } from "framer-motion";
-
+import { useRouter } from 'next/navigation';
 const UniversityDashboard = () => {
     // Mock data
+   
     const stats = {
         totalStudents: 1200,
         placedStudents: 850,
         companiesVisited: 45,
         avgPackage: '8.5 LPA'
     };
-
+    
     const upcomingDrives = [
         { id: 1, company: 'Google', date: 'Jan 20, 2025', roles: ['SDE', 'Cloud Engineer'], eligible: 150 },
         { id: 2, company: 'Microsoft', date: 'Jan 25, 2025', roles: ['SDE-1'], eligible: 200 },

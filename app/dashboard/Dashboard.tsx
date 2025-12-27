@@ -48,7 +48,8 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="container mx-auto max-w-7xl animate-in fade-in duration-500">
+        <div className="container pt-10 mx-auto max-w-7xl animate-in fade-in duration-500">
+            <h1>{user.role}</h1>
             {renderDashboard()}
         </div>
     );

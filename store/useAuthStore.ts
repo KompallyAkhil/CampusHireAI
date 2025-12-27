@@ -34,8 +34,8 @@ export const useAuthStore = create<AuthState>()(
         set({
           user,
           token,
-          // If expiresAt is provided, use it. Otherwise default to 24h from now (matches API default)
-          expiresAt: expiresAt || Date.now() + 24 * 60 * 60 * 1000, 
+         
+          expiresAt: expiresAt, 
           isAuthenticated: true,
         });
       },
@@ -47,7 +47,8 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           expiresAt: null,
         });
-        localStorage.removeItem('auth-storage'); // Clean up the specific key used by persist
+        localStorage.removeItem('auth-storage'); 
+        // Clean up the specific key used by persist
       },
 
       checkSession: () => {

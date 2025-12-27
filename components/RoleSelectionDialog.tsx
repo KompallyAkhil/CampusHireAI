@@ -76,20 +76,27 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
         toast.error(result.error || "Sign In failed");
       } else {
         toast.success(result.message || "Sign In successful");
-        console.log("Client SignIn Success:", result);
-        
         // Use Zustand store for login
         const login = useAuthStore.getState().login;
-        console.log("Client SignIn Success:", login);
         login({
             user: result.data,
             token: result.data.token,
             expiresAt: result.data.expiresAt
         });
 
-
         // Redirect to dashboard
         router.push('/dashboard');
+
+        if (data.role === 'company') {
+            setCompanySignInEmail("");
+            setCompanySignInPassword("");
+        } else if (data.role === 'student') {
+            setStudentSignInEmail("");
+            setStudentSignInPassword("");
+        } else if (data.role === 'university') {
+            setUniversitySignInEmail("");
+            setUniversitySignInPassword("");
+        }
       }
     } catch (error) {
       console.error("Client SignIn Error:", error);
@@ -113,11 +120,22 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
       if (!response.ok) {
         toast.error(result.error || "Sign Up failed");
       } else {
-        toast.success(result.message || "Sign Up successful");
-        console.log("Client SignUp Success:", result);
+
+        if (data.role === 'company') {
+            setCompanyName("");
+            setCompanySignUpEmail("");
+            setCompanySignUpPassword("");
+        } else if (data.role === 'student') {
+            setStudentName("");
+            setStudentSignUpEmail("");
+            setStudentSignUpPassword("");
+        } else if (data.role === 'university') {
+            setUniversityName("");
+            setUniversitySignUpEmail("");
+            setUniversitySignUpPassword("");
+        }
       }
     } catch (error) {
-      console.error("Client SignUp Error:", error);
       toast.error("An unexpected error occurred.");
     }
   };

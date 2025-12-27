@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, FileText, TrendingUp, Plus, MoreHorizontal } from 'lucide-react';
 import { motion } from "framer-motion";
-
 const CompanyDashboard = () => {
     // Mock data
     const stats = {
