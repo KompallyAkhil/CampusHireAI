@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Building, Users, PieChart, ArrowUpRight, Calendar } from 'lucide-react';
 import { motion } from "framer-motion";
-import { useRouter } from 'next/navigation';
 const UniversityDashboard = () => {
     // Mock data
    
