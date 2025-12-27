@@ -54,7 +54,7 @@ const StudentDashboard = () => {
             {/* Welcome Section */}
             <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold tracking-tight to-primary/60 bg-clip-text text-transparent">
                         Welcome back!
                     </h1>
                     <p className="text-muted-foreground mt-1">
@@ -169,13 +169,13 @@ const StudentDashboard = () => {
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border-none">
+                    <Card className="from-indigo-500/10 to-purple-500/10 border-none">
                          <CardContent className="p-6">
                             <h3 className="font-semibold mb-2">Boost your profile</h3>
                             <p className="text-sm text-muted-foreground mb-4">
                                 Complete your skills assessments to increase your chances of getting hired.
                             </p>
-                            <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg">
+                            <Button className="w-full  from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg">
                                 Start Assessment
                             </Button>
                          </CardContent>

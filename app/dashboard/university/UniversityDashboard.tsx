@@ -52,7 +52,7 @@ const UniversityDashboard = () => {
             {/* Header */}
             <motion.div variants={itemVariants} className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold tracking-tight text-orange-600">
                         Placement Cell
                     </h1>
                      <p className="text-muted-foreground mt-1">
