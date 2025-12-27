@@ -1,52 +1,55 @@
-'use client'
-import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { z } from "zod";
+'use client';
+
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+
 import { useAuthStore } from "@/store/useAuthStore";
-interface User {
-    userId : number;
-    id : number;
-    title : string;
-    completed : boolean;
-}
+import { useAuthCheck } from "@/hooks/use-auth-check";
+import StudentDashboard from "./student/StudentDashboard";
+import CompanyDashboard from "./company/CompanyDashboard";
+import UniversityDashboard from "./university/UniversityDashboard";
+import { Loader2 } from "lucide-react";
 
-const UserSchema = z.object({
-  userId: z.number(),
-  id: z.number(),
-  title: z.string(),
-  completed: z.boolean()
-});
-
-const Dashboard =  () => {
+const Dashboard = () => {
     const router = useRouter();
-    const [data, setData] = useState<User | null>(null);
-
-    const checkSession = useAuthStore((state) => state.checkSession);
+    const { isLoading } = useAuthCheck();
+    const user = useAuthStore((state) => state.user);
     const logout = useAuthStore((state) => state.logout);
 
-    useEffect(() => {
-        const isValid = checkSession();
-        if (!isValid) {
-             toast.error("Session expired or invalid. Please log in again.");
-             router.push('/');
-        }
-    }, [checkSession, router]);
-
-    const getDataFromUser = async () => {
-        const response = await fetch('/api/users');
-        const res = await response.json();
-        const validatedData = UserSchema.parse(res);
-        console.log(validatedData);
-        setData(validatedData);
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
     }
-    console.log(data);
+
+    if (!user) {
+        return null; 
+    }
+
+    const renderDashboard = () => {
+        switch (user.role) {
+            case 'student':
+                return <StudentDashboard />;
+            case 'company':
+                return <CompanyDashboard />;
+            case 'university':
+                return <UniversityDashboard />;
+            default:
+                return (
+                    <div className="flex flex-col items-center justify-center h-[50vh] text-center">
+                        <h2 className="text-2xl font-bold mb-2">Unknown Role</h2>
+                        <p className="text-muted-foreground">
+                            Your account type ({user.role}) is not recognized. Please contact support.
+                        </p>
+                    </div>
+                );
+        }
+    };
+
     return (
-        <div>
-            <h1>Dashboard</h1>
-            <Button onClick={() => getDataFromUser()}>Get Data</Button>
-            
+        <div className="container mx-auto max-w-7xl animate-in fade-in duration-500">
+            {renderDashboard()}
         </div>
     );
 };
