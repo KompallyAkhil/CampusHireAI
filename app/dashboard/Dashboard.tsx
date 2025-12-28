@@ -1,19 +1,17 @@
 'use client';
 
-import { useRouter } from "next/navigation";
-
+import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useAuthCheck } from "@/hooks/use-auth-check";
 import StudentDashboard from "./student/StudentDashboard";
 import CompanyDashboard from "./company/CompanyDashboard";
 import UniversityDashboard from "./university/UniversityDashboard";
-import { Loader2 } from "lucide-react";
 
 const Dashboard = () => {
-    const router = useRouter();
+   
     const { isLoading } = useAuthCheck();
     const user = useAuthStore((state) => state.user);
-    const logout = useAuthStore((state) => state.logout);
+   
 
     if (isLoading) {
         return (

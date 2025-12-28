@@ -107,7 +107,7 @@ export const Sidebar = () => {
                         isCollapsed ? 'justify-center' : ''
                      }`}
                 >
-                    <div className={`${isCollapsed ? 'justify-center rounded-full' : ''} rounded-4xl w-8 h-8 border border-gray-200 flex items-center justify-center`}>{user?.name?.toString().charAt(0)}</div>
+                    <div className={`rounded-full  w-8 h-8 flex justify-center items-center`}>{user?.name?.toString().charAt(0)}</div>
                     {!isCollapsed && (
                         <motion.span 
                         initial={{ opacity: 0 }}    
