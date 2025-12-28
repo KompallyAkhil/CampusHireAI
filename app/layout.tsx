@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/components/Navbar";
+import LayoutWrapper from "@/components/LayoutWrapper";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -29,8 +29,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <Navbar />
+        <LayoutWrapper>
           {children}
+        </LayoutWrapper>
         <Toaster />
       </body>
     </html>

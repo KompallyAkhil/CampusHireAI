@@ -1,0 +1,124 @@
+'use client';
+
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Home, 
+  LayoutDashboard, 
+  Settings, 
+  LogOut, 
+  ChevronLeft, 
+  ChevronRight,
+  User
+} from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useAuthStore } from '@/store/useAuthStore';
+import { Button } from './ui/button';
+import { usePathname } from 'next/navigation';
+
+export const Sidebar = () => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const logout = useAuthStore((state) => state.logout);
+    const pathname = usePathname();
+    const user = useAuthStore((state) => state.user);
+
+    const handleLogout = () => {
+        logout();
+        window.location.href = '/';
+    };
+
+    const navItems = [
+        { icon: Home, label: 'Home', href: '/' },
+        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+        // Add more items as needed based on user role if necessary
+    ];
+
+    return (
+        <motion.div 
+            initial={{ width: isCollapsed ? 80 : 250 }}
+            animate={{ width: isCollapsed ? 80 : 250 }}
+            transition={{ duration: 0.3, type: "spring", stiffness: 100, damping: 20 }}
+            className="h-screen sticky top-0 bg-background border-r border-border/50 flex flex-col z-50 shadow-xl"
+        >
+            {/* Header */}
+            <div className="p-4 flex items-center justify-between border-b border-border/50 h-16">
+                {!isCollapsed && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center gap-2 cursor-pointer"
+                    >
+                         <div className="relative size-8 cursor-pointer rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+                            <Image src="/images/campushire.png" width={40} height={40} className="h-full w-full object-cover" alt="Logo" />
+                        </div>
+                        <span className="font-bold text-lg text-nowrap overflow-hidden cursor-pointer">CampusHire</span>
+                    </motion.div>
+                )}
+                {isCollapsed && (
+                     <div className="mx-auto cursor-pointer relative size-8 rounded-xl bg-primary flex items-center justify-center overflow-hidden">
+                        <Image src="/images/campushire.png" width={40} height={40} className="h-full w-full object-cover" alt="Logo" />
+                    </div>
+                )}
+            </div>
+
+            {/* Toggle Button */}
+             <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="absolute -right-3 top-20 bg-background border border-border rounded-full p-1 shadow-md hover:bg-accent transition-colors z-50"
+            >
+                {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            </button>
+
+            {/* Nav Items */}
+            <div className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+                    return (
+                        <Link 
+                            key={item.href} 
+                            href={item.href}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${
+                                isActive 
+                                    ? 'bg-primary text-primary-foreground shadow-md' 
+                                    : 'hover:bg-accent text-muted-foreground hover:text-foreground'
+                            }`}
+                        >
+                            <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:text-foreground'} />
+                            {!isCollapsed && (
+                                <motion.span 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="font-medium whitespace-nowrap"
+                                >
+                                    {item.label}
+                                </motion.span>
+                            )}
+                        </Link>
+                    )
+                })}
+            </div>
+
+            {/* Footer / Logout */}
+            <div className="p-4 border-t border-border/50">
+                 <button
+                    onClick={handleLogout}
+                     className={`flex items-center cursor-pointer gap-3 px-3 py-2 rounded-xl w-full transition-all text-destructive hover:bg-destructive/10 ${
+                        isCollapsed ? 'justify-center' : ''
+                     }`}
+                >
+                    <LogOut size={20} />
+                    {!isCollapsed && (
+                        <motion.span 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="font-medium whitespace-nowrap"
+                        >
+                            Logout
+                        </motion.span>
+                    )}
+                </button>
+            </div>
+        </motion.div>
+    );
+};

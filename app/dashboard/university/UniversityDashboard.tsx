@@ -8,7 +8,7 @@ import { GraduationCap, Building, Users, PieChart, ArrowUpRight, Calendar } from
 import { motion } from "framer-motion";
 const UniversityDashboard = () => {
     // Mock data
-   
+ 
     const stats = {
         totalStudents: 1200,
         placedStudents: 850,
