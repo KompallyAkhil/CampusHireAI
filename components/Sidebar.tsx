@@ -22,7 +22,7 @@ export const Sidebar = () => {
     const logout = useAuthStore((state) => state.logout);
     const pathname = usePathname();
     const user = useAuthStore((state) => state.user);
-
+    // console.log(user?.name);
     const handleLogout = () => {
         logout();
         window.location.href = '/';
@@ -103,20 +103,21 @@ export const Sidebar = () => {
             <div className="p-4 border-t border-border/50">
                  <button
                     onClick={handleLogout}
-                     className={`flex items-center cursor-pointer gap-3 px-3 py-2 rounded-xl w-full transition-all text-destructive hover:bg-destructive/10 ${
+                     className={`flex items-center cursor-pointer gap-3 px-3 py-2 rounded-xl w-full transition-all hover:bg-gray-100 ${
                         isCollapsed ? 'justify-center' : ''
                      }`}
                 >
-                    <LogOut size={20} />
+                    <div className={`${isCollapsed ? 'justify-center rounded-full' : ''} rounded-4xl w-8 h-8 border border-gray-200 flex items-center justify-center`}>{user?.name?.toString().charAt(0)}</div>
                     {!isCollapsed && (
                         <motion.span 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="font-medium whitespace-nowrap"
+                        initial={{ opacity: 0 }}    
+                        animate={{ opacity: 1 }}
+                        className="font-medium whitespace-nowrap"
                         >
                             Logout
                         </motion.span>
                     )}
+                    {/* <LogOut size={20} className='text-destructive' /> */}
                 </button>
             </div>
         </motion.div>
