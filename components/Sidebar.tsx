@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, 
@@ -9,7 +9,10 @@ import {
   LogOut, 
   ChevronLeft, 
   ChevronRight,
-  User
+  User,
+  BarChart3,
+  Bell,
+  Megaphone
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,16 +26,76 @@ export const Sidebar = () => {
     const pathname = usePathname();
     const user = useAuthStore((state) => state.user);
     // console.log(user?.name);
+    const [hasNewNotification, setHasNewNotification] = useState(false);
+
+    // Poll for notifications
+    useEffect(() => {
+        if (user?.role !== 'student') return;
+
+        const checkNotifications = async () => {
+            try {
+                const res = await fetch('/api/alerts');
+                if (res.ok) {
+                    const alerts = await res.json();
+                    if (alerts.length > 0) {
+                        const latestAlert = alerts[0];
+                        const lastReadTime = localStorage.getItem('last_read_alert_time');
+                        
+                        if (!lastReadTime || new Date(latestAlert.created_at).getTime() > new Date(lastReadTime).getTime()) {
+                            setHasNewNotification(true);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking notifications:", error);
+            }
+        };
+
+        checkNotifications();
+        // const interval = setInterval(checkNotifications, 30000); // Check every 30s
+        // return () => clearInterval(interval);
+    }, [user?.role]);
+
+    const handleNavClick = (href: string) => {
+        if (href === '/dashboard/student/notifications') {
+            setHasNewNotification(false);
+            localStorage.setItem('last_read_alert_time', new Date().toISOString());
+        }
+    };
+
     const handleLogout = () => {
         logout();
         window.location.href = '/';
     };
 
-    const navItems = [
-        { icon: Home, label: 'Home', href: '/' },
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-        // Add more items as needed based on user role if necessary
-    ];
+    const getNavItems = () => {
+        const commonItems = [
+             { icon: Home, label: 'Home', href: '/' },
+             { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+        ];
+
+        // console.log("Current user role:", user?.role);
+
+        if (user?.role === 'university') {
+            return [
+                ...commonItems,
+                { icon: BarChart3, label: 'Placement Stats', href: '/dashboard/university/stats' },
+                { icon: Bell, label: 'Notifications', href: '/dashboard/university/notifications' },
+                { icon: Megaphone, label: 'Create Alert', href: '/dashboard/university/alerts/create' },
+            ];
+        }
+
+        if (user?.role === 'student') {
+            return [
+                ...commonItems,
+                { icon: Bell, label: 'Notifications', href: '/dashboard/student/notifications' },
+            ];
+        }
+
+        return commonItems;
+    };
+
+    const navItems = getNavItems();
 
     return (
         <motion.div 
@@ -73,18 +136,31 @@ export const Sidebar = () => {
             {/* Nav Items */}
             <div className="flex-1 py-6 px-3 space-y-2 overflow-y-auto">
                 {navItems.map((item) => {
-                    const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+                    const isActive = (item.href === '/' || item.href === '/dashboard')
+                        ? pathname === item.href 
+                        : pathname === item.href || pathname?.startsWith(item.href + '/');
+
                     return (
                         <Link 
                             key={item.href} 
                             href={item.href}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group ${
+                            onClick={() => handleNavClick(item.href)}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all group relative ${
                                 isActive 
                                     ? 'bg-primary text-primary-foreground shadow-md' 
                                     : 'hover:bg-accent text-muted-foreground hover:text-foreground'
                             }`}
                         >
-                            <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:text-foreground'} />
+                            <div className="relative">
+                                <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:text-foreground'} />
+                                {item.label === 'Notifications' && hasNewNotification && (
+                                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                                    </span>
+                                )} 
+                            </div>
+                            
                             {!isCollapsed && (
                                 <motion.span 
                                     initial={{ opacity: 0 }}
@@ -107,7 +183,7 @@ export const Sidebar = () => {
                         isCollapsed ? 'justify-center' : ''
                      }`}
                 >
-                    <div className={`rounded-full  w-8 h-8 flex justify-center items-center`}>{user?.name?.toString().charAt(0)}</div>
+                    <div className={`rounded-full bg-gray-200 w-8 h-8 flex justify-center items-center`}>{user?.name?.toString().charAt(0)}</div>
                     {!isCollapsed && (
                         <motion.span 
                         initial={{ opacity: 0 }}    

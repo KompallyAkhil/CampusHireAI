@@ -98,6 +98,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
             setUniversitySignInPassword("");
         }
       }
+      toast.success("Sign In successful");
     } catch (error) {
       console.error("Client SignIn Error:", error);
       toast.error("An unexpected error occurred.");
@@ -135,6 +136,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
             setUniversitySignUpPassword("");
         }
       }
+      toast.success("Sign Up successful");
     } catch (error) {
       toast.error("An unexpected error occurred.");
     }
