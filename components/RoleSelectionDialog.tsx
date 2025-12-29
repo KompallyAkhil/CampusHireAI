@@ -34,30 +34,69 @@ type SignUpData = {
   password: string;
 };
 
+type FormState = {
+  company: {
+    signIn: { email: string; password: string };
+    signUp: { name: string; email: string; password: string };
+  };
+  student: {
+    signIn: { email: string; password: string };
+    signUp: { name: string; email: string; password: string };
+  };
+  university: {
+    signIn: { email: string; password: string };
+    signUp: { name: string; email: string; password: string };
+  };
+};
+
 export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
   const router = useRouter();
-  // State for Company
-  const [companySignInEmail, setCompanySignInEmail] = useState("");
-  const [companySignInPassword, setCompanySignInPassword] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [companySignUpEmail, setCompanySignUpEmail] = useState("");
-  const [companySignUpPassword, setCompanySignUpPassword] = useState("");
+  
+  const [formState, setFormState] = useState<FormState>({
+    company: {
+      signIn: { email: "", password: "" },
+      signUp: { name: "", email: "", password: "" },
+    },
+    student: {
+      signIn: { email: "", password: "" },
+      signUp: { name: "", email: "", password: "" },
+    },
+    university: {
+      signIn: { email: "", password: "" },
+      signUp: { name: "", email: "", password: "" },
+    },
+  });
 
-  // State for Student
-  const [studentSignInEmail, setStudentSignInEmail] = useState("");
-  const [studentSignInPassword, setStudentSignInPassword] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [studentSignUpEmail, setStudentSignUpEmail] = useState("");
-  const [studentSignUpPassword, setStudentSignUpPassword] = useState("");
+  const updateFormField = (
+    role: keyof FormState,
+    type: "signIn" | "signUp",
+    field: string,
+    value: string
+  ) => {
+    setFormState((prev) => ({
+      ...prev,
+      [role]: {
+        ...prev[role],
+        [type]: {
+          ...prev[role][type],
+          [field]: value,
+        },
+      },
+    }));
+  };
 
-  // State for University
-  const [universitySignInEmail, setUniversitySignInEmail] = useState("");
-  const [universitySignInPassword, setUniversitySignInPassword] = useState("");
-  const [universityName, setUniversityName] = useState("");
-  const [universitySignUpEmail, setUniversitySignUpEmail] = useState("");
-  const [universitySignUpPassword, setUniversitySignUpPassword] = useState("");
-
-
+  const resetForm = (role: keyof FormState, type: "signIn" | "signUp") => {
+    setFormState((prev) => ({
+      ...prev,
+      [role]: {
+        ...prev[role],
+        [type]:
+          type === "signIn"
+            ? { email: "", password: "" }
+            : { name: "", email: "", password: "" },
+      },
+    }));
+  };
 
   const handleSignIn = async (data: SignInData) => {
     try {
@@ -76,36 +115,23 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
         toast.error(result.error || "Sign In failed");
       } else {
         toast.success(result.message || "Sign In successful");
-        // Use Zustand store for login
         const login = useAuthStore.getState().login;
         login({
-            user: result.data,
-            token: result.data.token,
-            expiresAt: result.data.expiresAt
+          user: result.data,
+          token: result.data.token,
+          expiresAt: result.data.expiresAt,
         });
 
-        // Redirect to dashboard
-        router.push('/dashboard');
-
-        if (data.role === 'company') {
-            setCompanySignInEmail("");
-            setCompanySignInPassword("");
-        } else if (data.role === 'student') {
-            setStudentSignInEmail("");
-            setStudentSignInPassword("");
-        } else if (data.role === 'university') {
-            setUniversitySignInEmail("");
-            setUniversitySignInPassword("");
-        }
+        router.push("/dashboard");
+        resetForm(data.role as keyof FormState, "signIn");
       }
-      toast.success("Sign In successful");
     } catch (error) {
       console.error("Client SignIn Error:", error);
       toast.error("An unexpected error occurred.");
     }
   };
 
-  const handleSignUp = async  (data:SignUpData) => {
+  const handleSignUp = async (data: SignUpData) => {
     try {
       const payload = { ...data };
 
@@ -121,27 +147,14 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
       if (!response.ok) {
         toast.error(result.error || "Sign Up failed");
       } else {
-
-        if (data.role === 'company') {
-            setCompanyName("");
-            setCompanySignUpEmail("");
-            setCompanySignUpPassword("");
-        } else if (data.role === 'student') {
-            setStudentName("");
-            setStudentSignUpEmail("");
-            setStudentSignUpPassword("");
-        } else if (data.role === 'university') {
-            setUniversityName("");
-            setUniversitySignUpEmail("");
-            setUniversitySignUpPassword("");
-        }
+        toast.success("Sign Up successful");
+        resetForm(data.role as keyof FormState, "signUp");
       }
-      toast.success("Sign Up successful");
     } catch (error) {
       toast.error("An unexpected error occurred.");
     }
   };
- 
+
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -176,14 +189,14 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <div 
+                <div
                   className="grid gap-4 py-4"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSignIn({
                         role: "company",
-                        email: companySignInEmail,
-                        password: companySignInPassword,
+                        email: formState.company.signIn.email,
+                        password: formState.company.signIn.password,
                       });
                     }
                   }}
@@ -194,8 +207,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       id="company-email"
                       type="email"
                       placeholder="company@example.com"
-                      value={companySignInEmail}
-                      onChange={(e) => setCompanySignInEmail(e.target.value)}
+                      value={formState.company.signIn.email}
+                      onChange={(e) =>
+                        updateFormField("company", "signIn", "email", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -203,17 +218,20 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="company-password"
                       type="password"
-                      value={companySignInPassword}
-                      onChange={(e) => setCompanySignInPassword(e.target.value)}
+                      value={formState.company.signIn.password}
+                      onChange={(e) =>
+                        updateFormField("company", "signIn", "password", e.target.value)
+                      }
                     />
                   </div>
 
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignIn({role : "company",
-                        email: companySignInEmail,
-                        password: companySignInPassword,
+                      handleSignIn({
+                        role: "company",
+                        email: formState.company.signIn.email,
+                        password: formState.company.signIn.password,
                       })
                     }
                   >
@@ -222,15 +240,15 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <div 
+                <div
                   className="grid gap-4 py-4"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSignUp({
                         role: "company",
-                        name: companyName,
-                        email: companySignUpEmail,
-                        password: companySignUpPassword,
+                        name: formState.company.signUp.name,
+                        email: formState.company.signUp.email,
+                        password: formState.company.signUp.password,
                       });
                     }
                   }}
@@ -240,8 +258,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="company-name"
                       placeholder="Acme Inc."
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
+                      value={formState.company.signUp.name}
+                      onChange={(e) =>
+                        updateFormField("company", "signUp", "name", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -250,8 +270,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       id="company-signup-email"
                       type="email"
                       placeholder="company@example.com"
-                      value={companySignUpEmail}
-                      onChange={(e) => setCompanySignUpEmail(e.target.value)}
+                      value={formState.company.signUp.email}
+                      onChange={(e) =>
+                        updateFormField("company", "signUp", "email", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -259,18 +281,20 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="company-signup-password"
                       type="password"
-                      value={companySignUpPassword}
-                      onChange={(e) => setCompanySignUpPassword(e.target.value)}
+                      value={formState.company.signUp.password}
+                      onChange={(e) =>
+                        updateFormField("company", "signUp", "password", e.target.value)
+                      }
                     />
                   </div>
                   <Button
                     className="w-full"
                     onClick={() =>
                       handleSignUp({
-                        role : "company",
-                        name: companyName,
-                        email: companySignUpEmail,
-                        password: companySignUpPassword,
+                        role: "company",
+                        name: formState.company.signUp.name,
+                        email: formState.company.signUp.email,
+                        password: formState.company.signUp.password,
                       })
                     }
                   >
@@ -288,14 +312,14 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <div 
+                <div
                   className="grid gap-4 py-4"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSignIn({
                         role: "student",
-                        email: studentSignInEmail,
-                        password: studentSignInPassword,
+                        email: formState.student.signIn.email,
+                        password: formState.student.signIn.password,
                       });
                     }
                   }}
@@ -306,8 +330,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       id="student-email"
                       type="email"
                       placeholder="student@example.com"
-                      value={studentSignInEmail}
-                      onChange={(e) => setStudentSignInEmail(e.target.value)}
+                      value={formState.student.signIn.email}
+                      onChange={(e) =>
+                        updateFormField("student", "signIn", "email", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -315,16 +341,19 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="student-password"
                       type="password"
-                      value={studentSignInPassword}
-                      onChange={(e) => setStudentSignInPassword(e.target.value)}
+                      value={formState.student.signIn.password}
+                      onChange={(e) =>
+                        updateFormField("student", "signIn", "password", e.target.value)
+                      }
                     />
                   </div>
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignIn({role : "student",
-                        email: studentSignInEmail,
-                        password: studentSignInPassword,
+                      handleSignIn({
+                        role: "student",
+                        email: formState.student.signIn.email,
+                        password: formState.student.signIn.password,
                       })
                     }
                   >
@@ -333,15 +362,15 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <div 
+                <div
                   className="grid gap-4 py-4"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSignUp({
                         role: "student",
-                        name: studentName,
-                        email: studentSignUpEmail,
-                        password: studentSignUpPassword,
+                        name: formState.student.signUp.name,
+                        email: formState.student.signUp.email,
+                        password: formState.student.signUp.password,
                       });
                     }
                   }}
@@ -351,8 +380,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="student-name"
                       placeholder="John Doe"
-                      value={studentName}
-                      onChange={(e) => setStudentName(e.target.value)}
+                      value={formState.student.signUp.name}
+                      onChange={(e) =>
+                        updateFormField("student", "signUp", "name", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -361,8 +392,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       id="student-signup-email"
                       type="email"
                       placeholder="student@example.com"
-                      value={studentSignUpEmail}
-                      onChange={(e) => setStudentSignUpEmail(e.target.value)}
+                      value={formState.student.signUp.email}
+                      onChange={(e) =>
+                        updateFormField("student", "signUp", "email", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -370,18 +403,20 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="student-signup-password"
                       type="password"
-                      value={studentSignUpPassword}
-                      onChange={(e) => setStudentSignUpPassword(e.target.value)}
+                      value={formState.student.signUp.password}
+                      onChange={(e) =>
+                        updateFormField("student", "signUp", "password", e.target.value)
+                      }
                     />
                   </div>
                   <Button
                     className="w-full"
                     onClick={() =>
                       handleSignUp({
-                        role : "student",
-                        name: studentName,
-                        email: studentSignUpEmail,
-                        password: studentSignUpPassword,
+                        role: "student",
+                        name: formState.student.signUp.name,
+                        email: formState.student.signUp.email,
+                        password: formState.student.signUp.password,
                       })
                     }
                   >
@@ -399,14 +434,14 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
-                <div 
+                <div
                   className="grid gap-4 py-4"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSignIn({
                         role: "university",
-                        email: universitySignInEmail,
-                        password: universitySignInPassword,
+                        email: formState.university.signIn.email,
+                        password: formState.university.signIn.password,
                       });
                     }
                   }}
@@ -417,8 +452,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       id="university-email"
                       type="email"
                       placeholder="university@example.com"
-                      value={universitySignInEmail}
-                      onChange={(e) => setUniversitySignInEmail(e.target.value)}
+                      value={formState.university.signIn.email}
+                      onChange={(e) =>
+                        updateFormField("university", "signIn", "email", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -426,16 +463,19 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="university-password"
                       type="password"
-                      value={universitySignInPassword}
-                      onChange={(e) => setUniversitySignInPassword(e.target.value)}
+                      value={formState.university.signIn.password}
+                      onChange={(e) =>
+                        updateFormField("university", "signIn", "password", e.target.value)
+                      }
                     />
                   </div>
                   <Button
                     className="w-full"
                     onClick={() =>
-                      handleSignIn({role : "university", 
-                        email: universitySignInEmail,
-                        password: universitySignInPassword,
+                      handleSignIn({
+                        role: "university",
+                        email: formState.university.signIn.email,
+                        password: formState.university.signIn.password,
                       })
                     }
                   >
@@ -444,15 +484,15 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                 </div>
               </TabsContent>
               <TabsContent value="signup">
-                <div 
+                <div
                   className="grid gap-4 py-4"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSignUp({
                         role: "university",
-                        name: universityName,
-                        email: universitySignUpEmail,
-                        password: universitySignUpPassword,
+                        name: formState.university.signUp.name,
+                        email: formState.university.signUp.email,
+                        password: formState.university.signUp.password,
                       });
                     }
                   }}
@@ -462,8 +502,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="university-name"
                       placeholder="State University"
-                      value={universityName}
-                      onChange={(e) => setUniversityName(e.target.value)}
+                      value={formState.university.signUp.name}
+                      onChange={(e) =>
+                        updateFormField("university", "signUp", "name", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -472,8 +514,10 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       id="university-signup-email"
                       type="email"
                       placeholder="university@example.com"
-                      value={universitySignUpEmail}
-                      onChange={(e) => setUniversitySignUpEmail(e.target.value)}
+                      value={formState.university.signUp.email}
+                      onChange={(e) =>
+                        updateFormField("university", "signUp", "email", e.target.value)
+                      }
                     />
                   </div>
                   <div className="grid gap-2">
@@ -481,18 +525,20 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     <Input
                       id="university-signup-password"
                       type="password"
-                      value={universitySignUpPassword}
-                      onChange={(e) => setUniversitySignUpPassword(e.target.value)}
+                      value={formState.university.signUp.password}
+                      onChange={(e) =>
+                        updateFormField("university", "signUp", "password", e.target.value)
+                      }
                     />
                   </div>
                   <Button
                     className="w-full"
                     onClick={() =>
                       handleSignUp({
-                        role : "university",
-                        name: universityName,
-                        email: universitySignUpEmail,
-                        password: universitySignUpPassword,
+                        role: "university",
+                        name: formState.university.signUp.name,
+                        email: formState.university.signUp.email,
+                        password: formState.university.signUp.password,
                       })
                     }
                   >
