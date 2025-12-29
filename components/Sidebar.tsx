@@ -79,7 +79,6 @@ export const Sidebar = () => {
         if (user?.role === 'university') {
             return [
                 ...commonItems,
-                { icon: BarChart3, label: 'Placement Stats', href: '/dashboard/university/stats' },
                 { icon: Bell, label: 'Notifications', href: '/dashboard/university/notifications' },
                 { icon: Megaphone, label: 'Create Alert', href: '/dashboard/university/alerts/create' },
             ];
