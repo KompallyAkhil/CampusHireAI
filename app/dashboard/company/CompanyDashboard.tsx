@@ -1,12 +1,20 @@
 'use client';
 
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, FileText, TrendingUp, Plus, MoreHorizontal } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Building2, Users, FileText, TrendingUp, Plus, MoreHorizontal, School, Send } from 'lucide-react';
 import { motion } from "framer-motion";
+import { supabase } from '@/utils/supabase';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/useAuthStore';
+
 const CompanyDashboard = () => {
+    const { user } = useAuthStore();
     // Mock data
     const stats = {
         activeJobs: 5,
@@ -26,6 +34,70 @@ const CompanyDashboard = () => {
         { id: 2, name: 'Sarah Williams', role: 'Product Designer', experience: '5 years', match: '88%' },
         { id: 3, name: 'Mike Chen', role: 'Frontend Engineer', experience: '2 years', match: '92%' },
     ];
+
+    const [universities, setUniversities] = useState<any[]>([]);
+    const [isLoadingUniversities, setIsLoadingUniversities] = useState(true);
+    const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+    const [selectedUniversity, setSelectedUniversity] = useState<any>(null);
+    const [inviteData, setInviteData] = useState({
+        jobTitle: '',
+        jobDescription: ''
+    });
+
+    useEffect(() => {
+        const fetchUniversities = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('role', 'university');
+                
+                if (error) throw error;
+                setUniversities(data || []);
+            } catch (error) {
+                console.error('Error fetching universities:', error);
+                toast.error('Failed to load universities');
+            } finally {
+                setIsLoadingUniversities(false);
+            }
+        };
+
+        fetchUniversities();
+    }, []);
+
+    const handleOpenInvite = (uni: any) => {
+        setSelectedUniversity(uni);
+        setIsInviteDialogOpen(true);
+    };
+
+    const handleSendInvite = async () => {
+        if (!inviteData.jobTitle || !inviteData.jobDescription) {
+            toast.error('Please fill in all fields');
+            return;
+        }
+
+        try {
+            const { error } = await supabase
+                .from('invites')
+                .insert({
+                    company_id: user?.id, 
+                    university_id: selectedUniversity.id,
+                    company_name: user?.name || 'Company Name', // Fallback if name is missing
+                    job_title: inviteData.jobTitle,
+                    job_description: inviteData.jobDescription,
+                    status: 'pending'
+                });
+
+            if (error) throw error;
+
+            toast.success(`Invite sent to ${selectedUniversity.name}`);
+            setIsInviteDialogOpen(false);
+            setInviteData({ jobTitle: '', jobDescription: '' });
+        } catch (error: any) {
+            console.error('Error sending invite:', error);
+            toast.error(error.message || 'Failed to send invite');
+        }
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -54,7 +126,7 @@ const CompanyDashboard = () => {
                         Recruiter Dashboard
                     </h1>
                      <p className="text-muted-foreground mt-1">
-                        Manage your job postings and track candidate applications.
+                        Manage your job postings, track candidate applications and invite universities.
                     </p>
                 </div>
                 <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
@@ -104,6 +176,42 @@ const CompanyDashboard = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 {/* Universities List - NEW SECTION */}
+                 <motion.div variants={itemVariants} className="space-y-4 lg:col-span-2">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                            <School className="h-5 w-5 text-blue-600" />
+                            Partner Universities
+                        </h2>
+                    </div>
+                    {isLoadingUniversities ? (
+                        <div className="text-center py-4 text-muted-foreground">Loading universities...</div>
+                    ) : universities.length === 0 ? (
+                         <div className="text-center py-4 text-muted-foreground">No universities found.</div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {universities.map((uni) => (
+                                <Card key={uni.id} className="hover:shadow-md transition-shadow">
+                                    <CardContent className="p-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                                {uni.name ? uni.name.charAt(0) : 'U'}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-semibold text-sm">{uni.name}</h3>
+                                                <p className="text-xs text-muted-foreground">{uni.email}</p>
+                                            </div>
+                                        </div>
+                                        <Button size="sm" variant="outline" className="gap-1" onClick={() => handleOpenInvite(uni)}>
+                                            <Send className="h-3 w-3" /> Invite
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </motion.div>
+
                 {/* Active Listings */}
                 <motion.div variants={itemVariants} className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -163,6 +271,43 @@ const CompanyDashboard = () => {
                      </Card>
                 </motion.div>
             </div>
+
+            {/* Invite Dialog */}
+            <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Invite {selectedUniversity?.name}</DialogTitle>
+                        <DialogDescription>
+                            Send a job invitation to this university.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="jobTitle">Job Title</Label>
+                            <Input 
+                                id="jobTitle" 
+                                placeholder="e.g. Junior Developer" 
+                                value={inviteData.jobTitle}
+                                onChange={(e) => setInviteData({...inviteData, jobTitle: e.target.value})}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="jobDescription">Job Description</Label>
+                            <textarea 
+                                id="jobDescription" 
+                                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                placeholder="Describe the role..."
+                                value={inviteData.jobDescription}
+                                onChange={(e) => setInviteData({...inviteData, jobDescription: e.target.value})}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleSendInvite}>Send Invite</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </motion.div>
     );
 };

@@ -74,8 +74,6 @@ export const Sidebar = () => {
              { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
         ];
 
-        // console.log("Current user role:", user?.role);
-
         if (user?.role === 'university') {
             return [
                 ...commonItems,

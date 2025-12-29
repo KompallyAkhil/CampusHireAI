@@ -4,7 +4,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 type UserRole = 'student' | 'company' | 'university';
 
 interface User {
-  id: number;
+  id: string | number;
   email: string;
   name?: string;
   role: UserRole;

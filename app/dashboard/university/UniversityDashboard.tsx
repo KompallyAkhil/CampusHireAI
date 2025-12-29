@@ -1,14 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Building, Users, PieChart, ArrowUpRight, Calendar } from 'lucide-react';
 import { motion } from "framer-motion";
+import { useAuthStore } from '@/store/useAuthStore';
+
 const UniversityDashboard = () => {
+    const { user } = useAuthStore();
+
     // Mock data
- 
     const stats = {
         totalStudents: 1200,
         placedStudents: 850,
@@ -16,7 +19,8 @@ const UniversityDashboard = () => {
         avgPackage: '8.5 LPA'
     };
     
-    const upcomingDrives = [
+    // This could also be fetched from DB in future
+    const upcomingDrivesMock = [
         { id: 1, company: 'Google', date: 'Jan 20, 2025', roles: ['SDE', 'Cloud Engineer'], eligible: 150 },
         { id: 2, company: 'Microsoft', date: 'Jan 25, 2025', roles: ['SDE-1'], eligible: 200 },
         { id: 3, company: 'Deloitte', date: 'Feb 02, 2025', roles: ['Analyst', 'Consultant'], eligible: 300 },
@@ -111,33 +115,39 @@ const UniversityDashboard = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Upcoming Drives */}
-                <motion.div variants={itemVariants} className="space-y-4">
-                    <h2 className="text-xl font-semibold flex items-center gap-2">
-                        <Building className="h-5 w-5 text-orange-600" />
-                        Upcoming Drives
-                    </h2>
-                     <div className="grid gap-3">
-                        {upcomingDrives.map((drive) => (
-                            <Card key={drive.id} className="group hover:border-orange-500/30 transition-all">
-                                <CardContent className="p-4">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="font-bold text-lg">{drive.company}</h3>
-                                        <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">{drive.date}</Badge>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 mb-3">
-                                        {drive.roles.map(role => (
-                                            <Badge key={role} variant="secondary" className="text-xs">{role}</Badge>
-                                        ))}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                        {drive.eligible} Eligible Students
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                </motion.div>
+                
+                <div className="space-y-6">
+                    {/* Upcoming Drives */}
+                    <motion.div variants={itemVariants} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold flex items-center gap-2">
+                                <Building className="h-5 w-5 text-orange-600" />
+                                Upcoming Drives
+                            </h2>
+                            <Button variant="ghost" size="sm" className="text-orange-600">View All</Button>
+                        </div>
+                        <div className="grid gap-3">
+                            {upcomingDrivesMock.map((drive) => (
+                                <Card key={drive.id} className="group hover:border-orange-500/30 transition-all">
+                                    <CardContent className="p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-bold text-lg">{drive.company}</h3>
+                                            <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">{drive.date}</Badge>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {drive.roles.map(role => (
+                                                <Badge key={role} variant="secondary" className="text-xs">{role}</Badge>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {drive.eligible} Eligible Students
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    </motion.div>
+                </div>
 
                 {/* Department Performance */}
                 <motion.div variants={itemVariants} className="space-y-4">
