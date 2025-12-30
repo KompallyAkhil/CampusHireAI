@@ -17,7 +17,6 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Button } from './ui/button';
 import { usePathname } from 'next/navigation';
 
 export const Sidebar = () => {

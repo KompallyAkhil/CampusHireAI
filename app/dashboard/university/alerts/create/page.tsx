@@ -21,7 +21,7 @@ export default function CreateAlertPage() {
         setIsLoading(true);
 
         try {
-            const response = await fetch("/api/alerts", {
+            const response = await fetch("http://127.0.0.1:8000/alerts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
