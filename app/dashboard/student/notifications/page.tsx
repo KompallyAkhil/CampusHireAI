@@ -20,7 +20,7 @@ export default function StudentNotificationsPage() {
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                const res = await fetch("/api/alerts");
+                const res = await fetch("http://127.0.0.1:8000/alerts");
                 if (res.ok) {
                     const data = await res.json();
                     setAlerts(data);

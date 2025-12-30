@@ -102,7 +102,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
     try {
       const payload = { ...data };
 
-      const response = await fetch("/api/signin", {
+      const response = await fetch("http://127.0.0.1:8000/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +135,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
     try {
       const payload = { ...data };
 
-      const response = await fetch("/api/signup", {
+      const response = await fetch("http://127.0.0.1:8000/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
