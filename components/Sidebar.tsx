@@ -18,6 +18,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuthStore } from '@/store/useAuthStore';
 import { usePathname } from 'next/navigation';
+import axios from 'axios';
 
 export const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -33,9 +34,8 @@ export const Sidebar = () => {
 
         const checkNotifications = async () => {
             try {
-                const res = await fetch('/api/alerts');
-                if (res.ok) {
-                    const alerts = await res.json();
+                const res = await axios.get('/api/alerts');
+                    const alerts = res.data;
                     if (alerts.length > 0) {
                         const latestAlert = alerts[0];
                         const lastReadTime = localStorage.getItem('last_read_alert_time');
@@ -44,7 +44,7 @@ export const Sidebar = () => {
                             setHasNewNotification(true);
                         }
                     }
-                }
+                
             } catch (error) {
                 console.error("Error checking notifications:", error);
             }

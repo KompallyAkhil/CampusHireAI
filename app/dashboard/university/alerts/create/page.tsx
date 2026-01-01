@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 export default function CreateAlertPage() {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,22 +22,13 @@ export default function CreateAlertPage() {
         setIsLoading(true);
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/alerts", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Failed to create alert");
-            }
+            await axios.post("http://127.0.0.1:8000/alerts", formData);
 
             toast.success("Alert created successfully!");
             setFormData({ title: "", message: "", deadline: "" });
         } catch (error: any) {
-            toast.error(error.message);
+             const errorMessage = error.response?.data?.detail || error.message || "Failed to create alert";
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }

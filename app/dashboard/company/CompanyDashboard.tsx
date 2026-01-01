@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 import { supabase } from '@/utils/supabase';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useAuthStore';
-
+import axios from 'axios';
 const CompanyDashboard = () => {
     const { user } = useAuthStore();
     // Mock data
@@ -47,13 +47,16 @@ const CompanyDashboard = () => {
     useEffect(() => {
         const fetchUniversities = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('role', 'university');
+
+                const response = await axios.get('http://localhost:8000/fetchUniversities');
+                setUniversities(response.data || []);
+                // const { data, error } = await supabase
+                //     .from('users')
+                //     .select('*')
+                //     .eq('role', 'university');
                 
-                if (error) throw error;
-                setUniversities(data || []);
+                // if (error) throw error;
+                // setUniversities(data || []);
             } catch (error) {
                 console.error('Error fetching universities:', error);
                 toast.error('Failed to load universities');

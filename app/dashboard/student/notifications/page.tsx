@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, Timer } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import axios from "axios";
 
 interface Alert {
   id: number;
@@ -20,11 +21,8 @@ export default function StudentNotificationsPage() {
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                const res = await fetch("http://127.0.0.1:8000/alerts");
-                if (res.ok) {
-                    const data = await res.json();
-                    setAlerts(data);
-                }
+                const res = await axios.get("http://127.0.0.1:8000/alerts");
+                setAlerts(res.data);
             } catch (error) {
                 console.error("Failed to fetch alerts", error);
             } finally {

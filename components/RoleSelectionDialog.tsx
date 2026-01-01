@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
+import axios from "axios";
 
 interface RoleSelectionDialogProps {
   children: React.ReactNode;
@@ -102,32 +103,23 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
     try {
       const payload = { ...data };
 
-      const response = await fetch("http://127.0.0.1:8000/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+      const response = await axios.post("http://127.0.0.1:8000/signin", payload);
+      const result = response.data;
+
+      toast.success(result.message || "Sign In successful");
+      const login = useAuthStore.getState().login;
+      login({
+        user: result.data,
+        token: result.data.token,
+        expiresAt: result.data.expiresAt,
       });
-      const result = await response.json();
 
-      if (!response.ok) {
-        toast.error(result.error || "Sign In failed");
-      } else {
-        toast.success(result.message || "Sign In successful");
-        const login = useAuthStore.getState().login;
-        login({
-          user: result.data,
-          token: result.data.token,
-          expiresAt: result.data.expiresAt,
-        });
-
-        router.push("/dashboard");
-        resetForm(data.role as keyof FormState, "signIn");
-      }
-    } catch (error) {
+      router.push("/dashboard");
+      resetForm(data.role as keyof FormState, "signIn");
+    } catch (error: any) {
       console.error("Client SignIn Error:", error);
-      toast.error("An unexpected error occurred.");
+      const errorMessage = error.response?.data?.detail || error.response?.data?.error || "Sign In failed";
+      toast.error(errorMessage);
     }
   };
 
@@ -135,23 +127,13 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
     try {
       const payload = { ...data };
 
-      const response = await fetch("http://127.0.0.1:8000/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      const result = await response.json();
-
-      if (!response.ok) {
-        toast.error(result.error || "Sign Up failed");
-      } else {
-        toast.success("Sign Up successful");
-        resetForm(data.role as keyof FormState, "signUp");
-      }
-    } catch (error) {
-      toast.error("An unexpected error occurred.");
+      const response = await axios.post("http://127.0.0.1:8000/signup", payload);
+      
+      toast.success("Sign Up successful");
+      resetForm(data.role as keyof FormState, "signUp");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || error.response?.data?.error || "Sign Up failed";
+      toast.error(errorMessage);
     }
   };
 
