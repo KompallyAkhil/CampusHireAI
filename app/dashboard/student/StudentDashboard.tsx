@@ -175,7 +175,7 @@ const StudentDashboard = () => {
                             <p className="text-sm text-muted-foreground mb-4">
                                 Complete your skills assessments to increase your chances of getting hired.
                             </p>
-                            <Button className="w-full  from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg">
+                            <Button className="w-full from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg">
                                 Start Assessment
                             </Button>
                          </CardContent>
