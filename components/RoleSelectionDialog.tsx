@@ -208,7 +208,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                   </div>
 
                   <Button
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() =>
                       handleSignIn({
                         role: "company",
@@ -270,7 +270,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     />
                   </div>
                   <Button
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() =>
                       handleSignUp({
                         role: "company",
@@ -330,7 +330,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     />
                   </div>
                   <Button
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() =>
                       handleSignIn({
                         role: "student",
@@ -392,7 +392,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     />
                   </div>
                   <Button
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() =>
                       handleSignUp({
                         role: "student",
@@ -452,7 +452,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     />
                   </div>
                   <Button
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() =>
                       handleSignIn({
                         role: "university",
@@ -514,7 +514,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                     />
                   </div>
                   <Button
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     onClick={() =>
                       handleSignUp({
                         role: "university",
