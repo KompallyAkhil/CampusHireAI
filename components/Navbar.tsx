@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { RoleSelectionDialog } from "./RoleSelectionDialog";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const Navbar = () => {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const logout = useAuthStore((state) => state.logout);
@@ -40,7 +42,7 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         logout();
-        window.location.href = '/';
+        router.push("/");
     };
 
     const getNavbarWidth = () => {

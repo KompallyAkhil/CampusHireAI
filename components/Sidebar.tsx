@@ -19,6 +19,7 @@ import Image from 'next/image';
 import { useAuthStore } from '@/store/useAuthStore';
 import { usePathname } from 'next/navigation';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -27,7 +28,7 @@ export const Sidebar = () => {
     const user = useAuthStore((state) => state.user);
     // console.log(user?.name);
     const [hasNewNotification, setHasNewNotification] = useState(false);
-
+    const router = useRouter();
     // Poll for notifications
     useEffect(() => {
         if (user?.role !== 'student') return;
@@ -64,7 +65,7 @@ export const Sidebar = () => {
 
     const handleLogout = () => {
         logout();
-        window.location.href = '/';
+        router.push('/');
     };
 
     const getNavItems = () => {

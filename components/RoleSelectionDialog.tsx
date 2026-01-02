@@ -109,9 +109,9 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
       toast.success(result.message || "Sign In successful");
       const login = useAuthStore.getState().login;
       login({
-        user: result.data,
-        token: result.data.token,
-        expiresAt: result.data.expiresAt,
+        user: result.user,
+        token: result.access_token,
+        expiresAt: Date.now() + (result.expires_in * 1000),
       });
 
       router.push("/dashboard");
