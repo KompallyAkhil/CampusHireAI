@@ -52,7 +52,7 @@ type FormState = {
 
 export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
   const router = useRouter();
-  
+
   const [formState, setFormState] = useState<FormState>({
     company: {
       signIn: { email: "", password: "" },
@@ -72,7 +72,7 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
     role: keyof FormState,
     type: "signIn" | "signUp",
     field: string,
-    value: string
+    value: string,
   ) => {
     setFormState((prev) => ({
       ...prev,
@@ -101,38 +101,60 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
 
   const handleSignIn = async (data: SignInData) => {
     try {
-      const payload = { ...data };
+      const payload = {
+        ...data,
+        email: data.email.trim(),
+      };
 
-      const response = await axios.post("http://127.0.0.1:8000/signin", payload);
+      const response = await axios.post(
+        "http://127.0.0.1:8000/signin",
+        payload,
+      );
       const result = response.data;
-
+      console.log(result);
       toast.success(result.message || "Sign In successful");
       const login = useAuthStore.getState().login;
+
+      // result.expires_in is in seconds, fallback to 24h if missing
+      const expiresInSeconds = result.expires_in || 24 * 3600;
+
       login({
         user: result.user,
-        token: result.access_token,
-        expiresAt: Date.now() + (result.expires_in * 1000),
+        token: result.token,
+        expiresAt: Date.now() + expiresInSeconds * 1000,
       });
 
       router.push("/dashboard");
       resetForm(data.role as keyof FormState, "signIn");
     } catch (error: any) {
       console.error("Client SignIn Error:", error);
-      const errorMessage = error.response?.data?.detail || error.response?.data?.error || "Sign In failed";
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.response?.data?.error ||
+        "Sign In failed";
       toast.error(errorMessage);
     }
   };
 
   const handleSignUp = async (data: SignUpData) => {
     try {
-      const payload = { ...data };
+      const payload = {
+        ...data,
+        email: data.email.trim(),
+      };
 
-      const response = await axios.post("http://127.0.0.1:8000/signup", payload);
-      
+      const response = await axios.post(
+        "http://127.0.0.1:8000/signup",
+        payload,
+      );
+      console.log(response.data);
       toast.success("Sign Up successful");
       resetForm(data.role as keyof FormState, "signUp");
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || error.response?.data?.error || "Sign Up failed";
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.response?.data?.error ||
+        "Sign Up failed";
       toast.error(errorMessage);
     }
   };
@@ -191,7 +213,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="company@example.com"
                       value={formState.company.signIn.email}
                       onChange={(e) =>
-                        updateFormField("company", "signIn", "email", e.target.value)
+                        updateFormField(
+                          "company",
+                          "signIn",
+                          "email",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -202,7 +229,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       type="password"
                       value={formState.company.signIn.password}
                       onChange={(e) =>
-                        updateFormField("company", "signIn", "password", e.target.value)
+                        updateFormField(
+                          "company",
+                          "signIn",
+                          "password",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -242,7 +274,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="Acme Inc."
                       value={formState.company.signUp.name}
                       onChange={(e) =>
-                        updateFormField("company", "signUp", "name", e.target.value)
+                        updateFormField(
+                          "company",
+                          "signUp",
+                          "name",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -254,7 +291,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="company@example.com"
                       value={formState.company.signUp.email}
                       onChange={(e) =>
-                        updateFormField("company", "signUp", "email", e.target.value)
+                        updateFormField(
+                          "company",
+                          "signUp",
+                          "email",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -265,7 +307,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       type="password"
                       value={formState.company.signUp.password}
                       onChange={(e) =>
-                        updateFormField("company", "signUp", "password", e.target.value)
+                        updateFormField(
+                          "company",
+                          "signUp",
+                          "password",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -314,7 +361,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="student@example.com"
                       value={formState.student.signIn.email}
                       onChange={(e) =>
-                        updateFormField("student", "signIn", "email", e.target.value)
+                        updateFormField(
+                          "student",
+                          "signIn",
+                          "email",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -325,7 +377,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       type="password"
                       value={formState.student.signIn.password}
                       onChange={(e) =>
-                        updateFormField("student", "signIn", "password", e.target.value)
+                        updateFormField(
+                          "student",
+                          "signIn",
+                          "password",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -364,7 +421,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="John Doe"
                       value={formState.student.signUp.name}
                       onChange={(e) =>
-                        updateFormField("student", "signUp", "name", e.target.value)
+                        updateFormField(
+                          "student",
+                          "signUp",
+                          "name",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -376,7 +438,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="student@example.com"
                       value={formState.student.signUp.email}
                       onChange={(e) =>
-                        updateFormField("student", "signUp", "email", e.target.value)
+                        updateFormField(
+                          "student",
+                          "signUp",
+                          "email",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -387,7 +454,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       type="password"
                       value={formState.student.signUp.password}
                       onChange={(e) =>
-                        updateFormField("student", "signUp", "password", e.target.value)
+                        updateFormField(
+                          "student",
+                          "signUp",
+                          "password",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -436,7 +508,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="university@example.com"
                       value={formState.university.signIn.email}
                       onChange={(e) =>
-                        updateFormField("university", "signIn", "email", e.target.value)
+                        updateFormField(
+                          "university",
+                          "signIn",
+                          "email",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -447,7 +524,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       type="password"
                       value={formState.university.signIn.password}
                       onChange={(e) =>
-                        updateFormField("university", "signIn", "password", e.target.value)
+                        updateFormField(
+                          "university",
+                          "signIn",
+                          "password",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -486,7 +568,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="State University"
                       value={formState.university.signUp.name}
                       onChange={(e) =>
-                        updateFormField("university", "signUp", "name", e.target.value)
+                        updateFormField(
+                          "university",
+                          "signUp",
+                          "name",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -498,7 +585,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       placeholder="university@example.com"
                       value={formState.university.signUp.email}
                       onChange={(e) =>
-                        updateFormField("university", "signUp", "email", e.target.value)
+                        updateFormField(
+                          "university",
+                          "signUp",
+                          "email",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>
@@ -509,7 +601,12 @@ export function RoleSelectionDialog({ children }: RoleSelectionDialogProps) {
                       type="password"
                       value={formState.university.signUp.password}
                       onChange={(e) =>
-                        updateFormField("university", "signUp", "password", e.target.value)
+                        updateFormField(
+                          "university",
+                          "signUp",
+                          "password",
+                          e.target.value,
+                        )
                       }
                     />
                   </div>

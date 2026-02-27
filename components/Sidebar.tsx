@@ -30,31 +30,31 @@ export const Sidebar = () => {
     const [hasNewNotification, setHasNewNotification] = useState(false);
     const router = useRouter();
     // Poll for notifications
-    useEffect(() => {
-        if (user?.role !== 'student') return;
+    // useEffect(() => {
+    //     if (user?.role !== 'student') return;
 
-        const checkNotifications = async () => {
-            try {
-                const res = await axios.get('/api/alerts');
-                    const alerts = res.data;
-                    if (alerts.length > 0) {
-                        const latestAlert = alerts[0];
-                        const lastReadTime = localStorage.getItem('last_read_alert_time');
+    //     const checkNotifications = async () => {
+    //         try {
+    //             const res = await axios.get('/api/alerts');
+    //                 const alerts = res.data;
+    //                 if (alerts.length > 0) {
+    //                     const latestAlert = alerts[0];
+    //                     const lastReadTime = localStorage.getItem('last_read_alert_time');
                         
-                        if (!lastReadTime || new Date(latestAlert.created_at).getTime() > new Date(lastReadTime).getTime()) {
-                            setHasNewNotification(true);
-                        }
-                    }
+    //                     if (!lastReadTime || new Date(latestAlert.created_at).getTime() > new Date(lastReadTime).getTime()) {
+    //                         setHasNewNotification(true);
+    //                     }
+    //                 }
                 
-            } catch (error) {
-                console.error("Error checking notifications:", error);
-            }
-        };
+    //         } catch (error) {
+    //             console.error("Error checking notifications:", error);
+    //         }
+    //     };
 
-        checkNotifications();
-        // const interval = setInterval(checkNotifications, 30000); // Check every 30s
-        // return () => clearInterval(interval);
-    }, [user?.role]);
+    //     checkNotifications();
+    //     // const interval = setInterval(checkNotifications, 30000); // Check every 30s
+    //     // return () => clearInterval(interval);
+    // }, [user?.role]);
 
     const handleNavClick = (href: string) => {
         if (href === '/dashboard/student/notifications') {
